@@ -168,3 +168,60 @@ alert(counter2.value()); /* Alerts 0 */
 ## this & object prototypes
 
 ### Chapter 1
+
+this 并不指向函数自身，下面为反例：
+
+```javascript
+function foo(num) {
+    console.log( "foo: " + num );
+
+    // keep track of how many times `foo` is called
+    this.count++;
+}
+
+foo.count = 0;
+
+var i;
+
+for (i=0; i<10; i++) {
+    if (i > 5) {
+        foo( i );
+    }
+}
+// foo: 6
+// foo: 7
+// foo: 8
+// foo: 9
+
+// how many times was `foo` called?
+console.log( foo.count ); // 0 -- WTF?
+```
+
+[感觉还是MDN比较清楚](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this)
+
+四种绑定：
+
+- 默认绑定。严格模式下，全局对象的this绑定到undefined，否则绑定到全局对象。
+
+> in strict mode, if this was not defined by the execution context, it remains undefined.
+
+```javascript
+function f1() {
+  return this;
+}
+
+// In a browser:
+f1() === window; // true
+
+// In Node:
+f1() === global; // true
+
+function f2() {
+  'use strict'; // see strict mode
+  return this;
+}
+
+f2() === undefined; // true
+```
+
+- 隐式绑定
