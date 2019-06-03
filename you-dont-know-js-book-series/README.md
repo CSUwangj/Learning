@@ -47,6 +47,8 @@ RHS查询：b = **a**， return **a** + **b**，var c = **foo**(2)
 // 我觉得我写这样的代码会被 space 打死
 // 等效代码如下（除了IIFE的特性外）
 
+// 包库的时候这么用，但 window 一般放在后面
+
 function notIIFE(f) {
     f(window)
 }
