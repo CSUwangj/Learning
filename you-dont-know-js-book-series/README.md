@@ -199,6 +199,8 @@ console.log( foo.count ); // 0 -- WTF?
 
 [感觉还是MDN比较清楚](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this)
 
+### Chapter 2
+
 四种绑定：
 
 - 默认绑定。严格模式下，全局对象的this绑定到undefined，否则绑定到全局对象。
@@ -225,3 +227,117 @@ f2() === undefined; // true
 ```
 
 - 隐式绑定
+
+this的上下文由调用位置决定，因此可能发生隐式绑定。对象属性引用链中中有最后一层会影响绑定位置。
+
+```javascript
+function foo() {
+    console.log( this.a );
+}
+
+var obj2 = {
+    a: 42,
+    foo: foo
+};
+
+var obj1 = {
+    a: 2,
+    obj2: obj2
+};
+
+obj1.obj2.foo(); // 42
+```
+
+同时这种绑定可能因为传递丢失，这在回调函数中比较常见。
+
+```javascript
+function foo() {
+    console.log( this.a );
+}
+
+var obj = {
+    a: 2,
+    foo: foo
+};
+
+var a = "oops, global"; // `a` also property on global object
+
+setTimeout( obj.foo, 100 ); // "oops, global"
+```
+
+- 显式绑定
+
+通过foo.call(...)、foo.apply(...)、foo.bind(...)进行绑定。
+
+- new 绑定
+
+以下为书里原文
+
+```javascript
+function foo(a) {
+    this.a = a;
+}
+
+var bar = new foo( 2 );
+console.log( bar.a ); // 2
+```
+
+By calling `foo(..)` with new in front of it, we've constructed a new object and
+ set that new object as the `this` for the call of `foo(..)`. **So `new` is the
+  final way that a function call's this can be bound. We'll call this new binding.**
+
+可以用以下代码设置一个DMZ对象，使得“我希望this是空”的意图更明显
+
+```javascript
+var empty = Object.create(null)
+```
+
+### Chapter 3
+
+> In objects, property names are always strings. If you use any other value
+> besides a string (primitive) as the property, it will first be converted to a
+> string. This even includes numbers, which are commonly used as array indexes,
+> so be careful not to confuse the use of numbers between objects and arrays.
+
+```javascript
+var myObject = { };
+
+myObject[true] = "foo";
+myObject[3] = "bar";
+myObject[myObject] = "baz";
+
+myObject["true"];                // "foo"
+myObject["3"];                   // "bar"
+myObject["[object Object]"];     // "baz"
+```
+
+可以通过defineProperty(...)来添加属性并显示指定是否科协、是否可配置、是否可枚举。
+
+### Chapter 4
+
+### Chapter 5
+
+```javascript
+// 错误的写法
+Bar.prototype = Foo.prototype
+
+// 基本上满足需求，但是可能会产生副作用
+Bar.prototype = new Foo()
+
+// ES6前正确玩法
+Bar.prototype = Object.create(Foo.prototype)
+
+// ES6
+Object.setPrototypeOf(Bar.prototype, Foo.prototype)
+```
+
+### Chapter 6
+
+比较了一下JS中的面向对象模式和行为委托模式，感觉有点意思。
+
+### Appendix A
+
+class基本上只是现有**\[\[Prototype\]\]**机制的语法糖，因此有一下问题。
+
+- 修改父类方法会影响所有已经实例化了的子类。（毕竟是是动态性语言www）
+- 无法定义类成员属性。
