@@ -341,3 +341,15 @@ class基本上只是现有**\[\[Prototype\]\]**机制的语法糖，因此有一
 
 - 修改父类方法会影响所有已经实例化了的子类。（毕竟是是动态性语言www）
 - 无法定义类成员属性。
+
+## type & grammar
+
+吐槽一下，，，中文版这什么排序啊，我还看到 up & going 在最后一本。。。
+
+### Chapter 1
+
+可以通过看 typeof 运算符返回是不是 undefined 来确认变量是否被定义而不用触发 Reference Error。（前提是它的值不为undefiend）
+
+### Chapter 2
+
+位运算只适用于32位整数，所以`a | 0`等价于`a & 0xFFFFFFFF`。（感觉会被打的trick）
