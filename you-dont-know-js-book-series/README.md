@@ -342,7 +342,7 @@ class基本上只是现有**\[\[Prototype\]\]**机制的语法糖，因此有一
 - 修改父类方法会影响所有已经实例化了的子类。（毕竟是是动态性语言www）
 - 无法定义类成员属性。
 
-## type & grammar
+## types & grammar
 
 吐槽一下，，，中文版这什么排序啊，我还看到 up & going 在最后一本。。。
 
@@ -353,3 +353,53 @@ class基本上只是现有**\[\[Prototype\]\]**机制的语法糖，因此有一
 ### Chapter 2
 
 位运算只适用于32位整数，所以`a | 0`等价于`a & 0xFFFFFFFF`。（感觉会被打的trick）
+
+### Chapter 3
+
+### Chapter 4
+
+ `parseInt(...)`会先进行toString()再转换，因此会有一些解释得通但是很奇怪的例子。不要写这样的代码，会被喷的。
+
+`+`会调用valueOf()，String()调用ToString()。（所以写这么魔法肯定要被喷啊！！！）
+
+`||`和`&&`返回的是操作数，即不是一定返回逻辑值，而是两个操作数中先和结果一致的值（这不还是魔法吗？？？)
+
+也就是说
+
+```javascript
+a||b
+// roughly equivalent to:
+a ? a : b
+
+a && b
+// roughly equivalent to:
+a ? b : a
+```
+
+不过上面这条用于初始化的时候貌似还挺有用的。形成共识的化的确OK吧。以及，以上两个运算符也有短路效果。
+
+`==`允许在相等比较中进行强制类型转换，而`===`不允许。（别用`==`）
+
+作者说
+
+> Learn how to use the power of coercion (both explicit and implicit)
+> effectively and safely. And teach those around you to do the same.
+
+感觉很容易坑进去啊。。。
+
+### Chapter 5
+
+可以使用标签跳到外层循环。
+
+其实没有else if，而只是相当于省略了一层花括号。。。
+
+### Appendix A
+
+网站的各自js文件、代码共享global对象（在浏览器中是window）。如果`<script> .. </script>`中的代码（无论内联或者外部）发生错误
+，它会像独立程序那样停止，但是后续`<script> .. </script>`中的代码依然会接着运行。同时可以通过代码创建`<script> .. </script>`，并将其加入到页面的DOM中。
+
+此外，浏览器根据代码文件的字符集属性解析外部问价那种的代码，内敛代码则使用其所在页面的字符集。
+
+## async & performance
+
+### Chapter 1
