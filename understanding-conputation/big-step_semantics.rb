@@ -170,3 +170,11 @@ class While < Struct.new(:condition, :consequence)
     end
   end
 end 
+
+
+statement = Sequence.new( 
+  Assign.new(:x, Add.new(Number.new(1), Number.new(1))), 
+  [Assign.new(:y, Add.new(Variable.new(:x), Number.new(3)))]
+)
+
+statement.evaluate({})
