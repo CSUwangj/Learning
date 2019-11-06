@@ -55,11 +55,11 @@ class Literal < Struct.new(:character)
     rule = FARule.new(start_state, character, accept_states)
     rulebook = NFARulebook.new([rule])
 
-    NFADesign.new(start_state, accept_states, rulebook)
+    NFADesign.new(start_state, [accept_states], rulebook)
   end
 end
 
-class Concatenate < Struct.new(:firset, :second)
+class Concatenate < Struct.new(:first, :second)
   include Pattern
 
   def to_s
@@ -68,6 +68,21 @@ class Concatenate < Struct.new(:firset, :second)
 
   def precedence
     1
+  end
+
+  def to_nfa_design
+    first_nfa_design = first.to_nfa_design
+    second_nfa_design = second.to_nfa_design
+
+    start_state = first_nfa_design.start_state
+    accept_states = second_nfa_design.accept_states
+    rules = first_nfa_design.rulebook.rules + second_nfa_design.rulebook.rules
+    extra_rules = first_nfa_design.accept_states.map { |state| 
+      FARule.new(state, nil, second_nfa_design.start_state)
+    }
+    rulebook = NFARulebook.new(rules + extra_rules)
+
+    NFADesign.new(start_state, accept_states, rulebook)
   end
 end
 
@@ -81,6 +96,21 @@ class Choose < Struct.new(:first, :second)
   def precedence
     0
   end
+
+  def to_nfa_design
+    first_nfa_design = first.to_nfa_design
+    second_nfa_design = second.to_nfa_design
+
+    start_state = Object.new
+    accept_states = first_nfa_design.accept_states + second_nfa_design.accept_states
+    rules = first_nfa_design.rulebook.rules + second_nfa_design.rulebook.rules
+    extra_rules = [first_nfa_design, second_nfa_design].map { |nfa_design| 
+      FARule.new(start_state, nil, nfa_design.start_state)
+    }
+    rulebook = NFARulebook.new(rules + extra_rules)
+
+    NFADesign.new(start_state, accept_states, rulebook)
+  end
 end
 
 class Repeat < Struct.new(:pattern)
@@ -93,5 +123,18 @@ class Repeat < Struct.new(:pattern)
   def precedence
     2
   end
-end
 
+  def to_nfa_design
+    orginal_design = pattern.to_nfa_design
+
+    start_state = Object.new
+    accept_states = orginal_design.accept_states + [start_state]
+    rules = orginal_design.rulebook.rules
+    extra_rules = orginal_design.accept_states.map { |state|
+      FARule.new(state, nil, orginal_design.start_state)
+    } + [FARule.new(start_state, nil, orginal_design.start_state)]
+    rulebook = NFARulebook.new(rules + extra_rules)
+
+    NFADesign.new(start_state, accept_states, rulebook)
+  end
+end
