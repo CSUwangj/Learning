@@ -23,7 +23,7 @@ class DFARulebook < Struct.new(:rules)
 end
 
 class DFA < Struct.new(:current_state, :accept_states, :rulebook)
-  def acception?
+  def accepting?
     accept_states.include?(current_state)
   end
 
