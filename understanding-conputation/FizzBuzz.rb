@@ -44,7 +44,7 @@ IS_LESS_OR_EQUAL = -> m { -> n { IS_ZERO[SUBTRACT[m][n]] } }
 #     m
 #   ]
 # }
-
+Y = -> f { -> x { f[x[x]] }[-> x { f[x[x]] }] }
 Z = -> f { -> x { f[-> y { x[x][y] }] }[-> x { f[-> y { x[x][y] }] }] }
 MOD = 
   Z[ -> f { -> m { -> n {
