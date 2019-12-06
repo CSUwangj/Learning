@@ -267,4 +267,257 @@ which shows that $P(k+2)$ indeed holds.
 
 ---
 
-And it's obvious that $|1-\sqrt{5}|<2$, so $\lim_{x\to\inf}\psi ^x=0.$ Which means $Fib(n)$ is the closest integer to $\frac{\phi ^n}{\sqrt{5}}$.
+And it's obvious that $|1-\sqrt{5}|<2$, so $\lim_{x\to+\infin}\psi ^x=0.$ Which means $Fib(n)$ is the closest integer to $\frac{\phi ^n}{\sqrt{5}}$.
+
+# 1.14
+
+This tree image is so big that it make me feel fucked...
+
+I'm confident that order of growth of the number of steps is $\Theta(k^n)$ where $k>1$, space is $\Theta(n)$.
+
+# 1.15
+
+I use racket and code below to check how many times *p* need to be evaluate before "bottom down" to piece.
+
+```scheme
+(define (count number c)
+  (if (< (abs number) 0.1)
+      c
+      (count (/ number 3.0)
+             (+ c 1))))
+(count 12.15 0)
+; 5
+```
+
+And each time we evaluated *p*, it's evaluated and split into two *p*, so in all we applied *p* $1+2+4+8+16=31$ times.
+
+---
+
+Order of growth of space growth with "bottom down" process, and each time devide parameter by three, so it's $\Theta(\log^n)$(do not care about constant).
+
+On the other hand, number of steps grow quicker, because every time applied procedure *p*, *p* will be called two more times. So the answer is $2^{\log_3^n}=2^{\log_2^3*\log_3^n\div\log_2^3}=kn$, which is $\Theta(n)$.
+
+# 1.16
+
+```scheme
+(define (fast-expt b n)
+  (fast-expt-iter b 1 n))
+
+(define (even? n)
+  (= (remainder n 2) 0))
+
+(define (square a)
+  (* a a))
+
+(define (fast-expt-iter b a n)
+  (if (= n 0)
+      a
+      (if (even? n)
+          (fast-expt-iter (square b)
+                          a
+                          (/ n 2))
+          (fast-expt-iter b
+                          (* a b)
+                          (- n 1)))))
+```
+
+# 1.17
+
+```scheme
+(define (even? n)
+  (= (remainder n 2) 0))
+
+(define (double a)
+  (+ a a))
+
+(define (* a b)
+  (cond ((= b 0) 0)
+        ((even? b) (double (* a (/ b 2))))
+        (else (+ a (* a (- b 1))))))
+```
+
+# 1.18
+
+```scheme
+(define (* a b)
+  (*-iter a 0 b))
+
+(define (*-iter a n b)
+  (if (= b 0)
+      n
+      (if (even? b)
+          (*-iter (double a)
+                  n
+                  (/ b 2))
+          (*-iter a
+                  (+ n a)
+                  (- b 1)))))
+```
+
+# 1.19
+
+```scheme
+(define (fib n)
+  (fib-iter 1 0 0 1 n))
+
+(define (fib-iter a b p q count)
+  (cond ((= count 0) b)
+        ((even? count)
+         (fib-iter a
+                   b
+                   (+ (* p p)
+                      (* q q))
+                   (+ (* 2 p q)
+                      (* q q))
+                   (/ count 2)))
+        (else (fib-iter (+ (* b q) (* a q) (* a p))
+                        (+ (* b p) (* a q))
+                        p
+                        q
+                        (- count 1)))))
+```
+
+All we need to do is to replace $a$ with $bq=aq+ap$, replace $b$ with $bp+aq$, then we have:
+$$\begin{aligned}
+  p\prime&=p^2+q^2\\q\prime&=2pq+q^2
+\end{aligned}$$
+
+# 1.20
+
+normal-order:
+
+```scheme
+(gcd 206 40)
+
+(if (= 40 0)
+    204
+    (gcd 40 (remainder 206 40)))
+
+(if #f
+    204
+    (gcd 40 (remainder 206 40)))
+
+(gcd 40 (remainder 206 40))
+
+(if (= (remainder 206 40) 0)
+    40
+    (gcd 6 (remainder 40 6)))
+
+(if (= 6 0)
+    40
+    (gcd 6 (remainder 40 6)))
+
+(if #f
+    40
+    (gcd 6 (remainder 40 6)))
+
+(gcd 6 (remainder 40 6))
+
+(if (= (remainder 40 6) 0)
+    6
+    (gcd 4 (remainder 6 4)))
+
+(if (= 4 0)
+    6
+    (gcd 4 (remainder 6 4)))
+
+(if #f
+    6
+    (gcd 4 (remainder 6 4)))
+
+(gcd 4 (remainder 6 4))
+
+(if (= (remainder 6 4) 0)
+    4
+    (gcd 2 (remainder 4 2)))
+
+(if (= 2 0)
+    4
+    (gcd 2 (remainder 4 2)))
+
+(if #f
+    4
+    (gcd 2 (remainder 4 2)))
+
+(gcd 2 (remainder 4 2))
+
+(if (= (remainder 4 2) 0)
+    2
+    (gcd 0 (remainder 2 0)))
+
+(if (= 0 0)
+    2
+    (gcd 0 (remainder 2 0)))
+
+(if #t
+    2
+    (gcd 0 (remainder 2 0)))
+
+2
+```
+
+application-order:
+
+```scheme
+(gcd 206 40)
+
+(if (= 40 0)
+    204
+    (gcd 40 (remainder 206 40)))
+
+(if #f
+    204
+    (gcd 40 (remainder 206 40)))
+
+(gcd 40 (remainder 206 40))
+
+(gcd 40 6)
+
+(if (= 6 0)
+    40
+    (gcd 6 (remainder 40 6)))
+
+(if #f
+    40
+    (gcd 6 (remainder 40 6)))
+
+(gcd 6 (remainder 40 6))
+
+(gcd 6 4)
+
+(if (= 4 0)
+    6
+    (gcd 4 (remainder 6 4)))
+
+(if #f
+    6
+    (gcd 4 (remainder 6 4)))
+
+(gcd 4 (remainder 6 4))
+
+(gcd 4 2)
+
+(if (= 2 0)
+    4
+    (gcd 2 (remainder 4 2)))
+
+(if #f
+    4
+    (gcd 2 (remainder 4 2)))
+
+(gcd 2 (remainder 4 2))
+
+(gcd 2 0)
+
+(if (= 0 0)
+    2
+    (gcd 0 (remainder 2 0)))
+
+(if #t
+    2
+    (gcd 0 (remainder 2 0)))
+
+2
+```
+
+Feel so stupid... I should've write a program to generate it rather than hand made...
