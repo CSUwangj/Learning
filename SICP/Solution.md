@@ -521,3 +521,98 @@ application-order:
 ```
 
 Feel so stupid... I should've write a program to generate it rather than hand made...
+
+# 1.21
+
+199 1999 7
+
+# 1.22
+
+1009 1013 1019
+
+10007 10009 10037
+
+100003 100019 100043 
+
+1000003 1000033 1000037
+
+Because (runtime) has less accuracy than need, I can't observe any difference on these process.
+
+# 1.23
+
+Because (runtime) has less accuracy than need, I can't observe any difference on these process.
+
+# 1.24
+
+Because (runtime) has less accuracy than need, I can't observe any difference on these process.
+
+# 1.25
+
+Yes and no. 
+
+If we use big integer as default, this algorithm will give us correct answer, because modular equivalence is compatibility with translation/scaling/addition/subtraction/multiplication/exponentiation.
+
+But we usually not use big integer as default, and even if default number is big integer(like in Python), arithmetic on big number is not a good idea.
+
+# 1.26
+
+Because interpreter use application-order to evaluation parameters, so every multiplication will evaluate both parameters to check what is it, and so 
+```scheme
+(* (expmod base (/ exp 2) m)
+   (expmod base (/ exp 2) m))
+```
+evaluate `(expmod base (/ exp 2) m)` twice, which cause this algorithm doesn't fast any more.
+
+# 1.27
+
+```scheme
+(define (test a n)
+    (= (expmod a n n) a))
+
+(define (fool-fermat n)
+  (cond ((prime? n) #f)
+        ((not (fermat-tell-yes n)) #f)
+        (else #t)))
+
+(define (fermat-tell-yes n)
+  (iter 1 n))
+
+(define (iter a n)
+  (if (< a n)
+      (if (test a n)
+          (iter (+ a 1) n)
+          #f)
+      #t))
+```
+
+```scheme
+(fool-fermat 561) 
+; #t
+(fool-fermat 1105)
+; #t
+(fool-fermat 1729)
+; #t
+(fool-fermat 2465)
+; #t
+(fool-fermat 2821)
+; #t
+(fool-fermat 6601)
+; #t
+```
+
+# 1.28
+
+```scheme
+(miller-rabin-test 561) 
+; #f
+(miller-rabin-test 1105)
+; #t
+(miller-rabin-test 1729)
+; #t
+(miller-rabin-test 2465)
+; #f
+(miller-rabin-test 2821)
+; #t
+(miller-rabin-test 6601)
+; #t
+```
