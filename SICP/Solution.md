@@ -616,3 +616,378 @@ evaluate `(expmod base (/ exp 2) m)` twice, which cause this algorithm doesn't f
 (miller-rabin-test 6601)
 ; #t
 ```
+
+# 1.29
+
+```scheme
+#lang sicp
+
+(define (even? n)
+  (= (remainder n 2) 0))
+
+(define (sum term a next b)
+  (if (> a b)
+      0
+      (+ (term a)
+         (sum term (next a) next b))))
+
+(define (integral f a b dx)
+  (define (add-dx x)
+    (+ x dx))
+  (* (sum f (+ a (/ dx 2.0)) add-dx b)
+     dx))
+
+(define (cube x)
+  (* x x x))
+
+(define (simpson f a b n)
+  (define h (/ (- b a) n))
+  (define (inc a)
+    (+ 1 a))
+  (define (term k)
+    (define yk
+      (f (+ a (* k h))))
+    (cond ((or (= 0 k) (= n k)) yk)
+          ((even? k) (* 2 yk))
+          (else (* 4 yk))))
+  (/ (* h (sum term 0 inc n)) 3.0))
+
+(integral cube 0 1 0.01) 
+; 0.24998750000000042
+(simpson cube 0 1 100)   
+; 0.25
+(integral cube 0 1 0.001)
+; 0.249999875000001
+(simpson cube 0 1 1000)  
+; 0.25
+```
+
+# 1.30
+
+```scheme
+(define (sum term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ result (term a)))))
+  (iter a 0))
+```
+
+# 1.31
+
+```scheme
+(define (product term a next b)
+  (if (> a b)
+      1
+      (* (term a)
+         (product term (next a) next b))))
+
+(define (product-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (* result (term a)))))
+  (iter a 1))
+
+(define (factorial-iter n)
+  (define (term x)
+    (cond ((> x 0) x)
+          (else 1)))
+  (define (inc a)
+    (+ 1 a))
+  (product-iter term 0 inc n))
+
+(define (pi n)
+  (define (term n)
+    (/ (+ (* (/ (- n
+                   (remainder n 2))
+                2)
+             2)
+          2)
+       (+ (* (/ (+ n
+                    (remainder n 2))
+                 2)
+              2)
+           1)))
+  (define (inc a)
+    (+ 1 a))
+  (* (product term 1 inc n) 4.0))
+```
+
+# 1.32
+
+```scheme
+(define (accumulate combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a)
+                (accumulate combiner null-value term (next a) next b))))
+
+(define (accumulate-iter combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (combiner result (term a)))))
+  (iter a null-value))
+
+(define (sum term a next b)
+  (accumulate + 0 term a next b))
+
+(define (product term a next b)
+  (accumulate-iter * 1 term a next b))
+```
+
+# 1.33
+
+```scheme
+(define (filtered-accumulate filter combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (if (filter (term a))
+                    (term a)
+                    null-value)
+                (filtered-accumulate filter combiner null-value term (next a) next b))))
+
+(define (sum-of-prime a b)
+  (filtered-accumulate prime + 0 (lambda (x) x) a next b))
+
+(define (product-of-relative-prime n)
+  (define (relative-prime? a)
+    (= (gcd a n)
+       1))
+  (filtered-accumulate relative-prime? * 1 (lambda (x) x) 1 next n))
+```
+
+# 1.34
+
+Interpreter said:
+
+```scheme
+application: not a procedure;
+ expected a procedure that can be applied to arguments
+  given: 2
+  arguments...:
+```
+
+Because `(f f)` become `(f 2)` which get `(2 2)`, if we ask interpreter deal with `(2 2)` or `(f 2)`, we will get same message.
+
+# 1.34
+
+$$ x=1+\frac{1}{x}$$
+$$x^2-x-1=0$$
+so
+$$x=\frac{1\plusmn\sqrt{5}}{2}$$
+
+```scheme
+(define (golden x)
+  (+ 1 (/ 1 x)))
+
+(fixed-point golden 1.0)
+; 1.6180327868852458
+```
+
+# 1.36
+
+```scheme
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2))
+       tolerance))
+  (define (try guess)
+    (display guess) ; here
+    (newline)       ;
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+; 10
+; 2.9999999999999996
+; 6.2877098228681545
+; 3.7570797902002955
+; 5.218748919675316
+; 4.1807977460633134
+; 4.828902657081293
+; 4.386936895811029
+; 4.671722808746095
+; 4.481109436117821
+; 4.605567315585735
+; 4.522955348093164
+; 4.577201597629606
+; 4.541325786357399
+; 4.564940905198754
+; 4.549347961475409
+; 4.5596228442307565
+; 4.552843114094703
+; 4.55731263660315
+; 4.554364381825887
+; 4.556308401465587
+; 4.555026226620339
+; 4.55587174038325
+; 4.555314115211184
+; 4.555681847896976
+; 4.555439330395129
+; 4.555599264136406
+; 4.555493789937456
+; 4.555563347820309
+; 4.555517475527901
+; 4.555547727376273
+; 4.555527776815261
+; 4.555540933824255
+; 4.555532257016376
+```
+
+# 1.37
+
+```scheme
+(define (cout-frac n d k)
+  (define (iter a)
+    (if (> a k)
+        0
+        (/ (n a)
+           (+ (d a) (iter (inc a))))))
+  (iter 1))
+
+(define (cout-frac-iter n d k)
+  (define (iter a result)
+    (if (< a 1)
+        result
+        (iter (- a 1)
+              (/ (n a)
+                 (+ result (d k))))))
+  (iter k 0))
+
+(cout-frac (lambda (i) 1.0)
+           (lambda (i) 1.0)
+           11)
+; 0.6180555555555556
+(cout-frac (lambda (i) 1.0)
+           (lambda (i) 1.0)
+           12)
+; 0.6180257510729613           
+```
+
+# 1.38
+
+```scheme
+(+ 2 (cout-frac-iter (lambda (i) 1.0)
+           (lambda (i)
+             (if (= (remainder i 3) 1)
+                 (* 2 (/ (+ i 2) 3))
+                 1))
+           102))
+```
+
+Because of lack of accuracy, answer is always wrong especially when $k\equiv1\mod 3$.
+
+# 1.39
+
+```scheme
+(define (tan-cf x k)
+  (define (cout-frac n d k)
+    (define (iter a)
+      (if (> a k)
+          0
+          (/ (n a)
+             (- (d a) (iter (inc a))))))
+    (iter 1))
+  (cout-frac (lambda (i) (exp x i))
+                  (lambda (i) (- (* i 2) 1))
+                  k))
+```
+
+# 1.40
+
+```scheme
+(define (cubic a b c)
+  (lambda (x)
+    (+ (cube x)
+       (* a (sqare x))
+       (* b x)
+       c)))
+```
+
+# 1.41
+
+```scheme
+(define (double f)
+  (lambda (x)
+    (f (f x))))
+
+(((double (double double)) inc) 5)
+; 21
+```
+
+# 1.42
+
+```scheme
+(define (compose f g)
+  (lambda (x)
+    (f (g x))))
+```
+
+# 1.43
+
+```scheme
+(define (repeat f n)
+  (define (iter x result)
+    (if (> x n)
+        result
+        (iter (+ x 1) (compose f result))))
+  (iter 1 (lambda (x) x)))
+```
+
+# 1.44
+
+```scheme
+(define (smooth dx)
+  (lambda (f)
+    (lambda (x)
+      (/ (+ (f (- x dx))
+            (f (x))
+            (f (+ x dx)))
+         3))))
+
+(define smooth-inst (smooth 0.00001))
+
+(define (n-fold-smooth n) (repeat smooth-inst n))
+```
+
+# 1.45
+
+```scheme
+(define (nth-root-of x n)
+  (fixed-point-of-transform
+    (lambda (y) (/ x (expt y (- n 1))))
+    (repeated average-damp (damp-number n))
+    1.0))
+```
+
+# 1.46
+
+```scheme
+(define (iterative-improve good-enough? improve)
+  (lambda (guess)
+    (if (good-enough? guess)
+        guess
+        ((iterative-improve good-enough? improve)
+         (improve guess)))))
+
+(define (sqrt x)
+  (define (good-enough? guess)
+    (let ((tolerance 0.001))
+      (< (abs (- square guess) x)) tolerance))
+  (define (average x y)
+    (/ (+ x y) 2))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  ((iterative-improve good-enough? improve) 1.0))
+
+(define (fixed-point f guess)
+  (define (close-enough? v1 v2)
+    (let ((tolerance 0.00001))
+      (< (abs (- v1 v2)) tolerance)))
+  (let ((good-enough? (lambda (x) (close-enough? x (f x))))
+        (improve f))
+    ((iterative-improve good-enough? improve) guess)))
+```
