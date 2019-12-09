@@ -991,3 +991,67 @@ Because of lack of accuracy, answer is always wrong especially when $k\equiv1\mo
         (improve f))
     ((iterative-improve good-enough? improve) guess)))
 ```
+
+# 2.1
+
+```scheme
+(define (make-rat n d)
+  (let ((g (gcd (abs n) (abs d))))
+    (if (< (* n d) 0)
+        (cons (* (- 1) (/ (abs n) g))
+              (/ (abs d) g))
+        (cons (/ (abs n) g) (/ (abs d) g)))))
+```
+
+# 2.2
+
+```scheme
+(define make-point cons)
+(define x-point car)
+(define y-point cdr)
+(define make-segment cons)
+(define start-segment car)
+(define end-segment cdr)
+(define (midpoint-segment line)
+  (make-point (average (x-point (start-segment line)) (x-point (end-segment line)))
+              (average (y-point (start-segment line)) (y-point (end-segment line)))))
+```
+
+# 2.3
+
+```scheme
+; I assume that each segment of rectangle is rectangle is parallel to the coordinate axis.
+(define (make-rec left-x right-x down-y up-y)
+  (cons (cons left-x down-y)
+        (cons right-x up-y)))
+(define (height rec)
+  (- (cdr (cdr rec))
+     (cdr (car rec))))
+(define (width rec)
+  (- (car (cdr rec))
+     (car (car rec))))
+(define (area rec)
+  (* (width rec)
+     (height rec)))
+(define (perimeter rec)
+  (* (+ (height rec)
+        (width rec))
+     2))
+
+  
+(define (area rect)
+  (* (width rect)
+     (height rect)))
+
+(define (perimeter rect)
+  (* 2 (+ (width rect)
+          (height rect))))
+```
+
+Another way(not use segment):
+
+```scheme
+(define make-rec cons)
+(define height car)
+(define width cdr)
+```
