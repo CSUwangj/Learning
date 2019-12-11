@@ -1055,3 +1055,204 @@ Another way(not use segment):
 (define height car)
 (define width cdr)
 ```
+
+# 2.4
+
+```scheme
+(define new-cons
+  (lambda (x y)
+    (lambda (f) (f x y))))
+(define new-car
+  (lambda (f)
+    (f (lambda (x y) y))))
+(define new-cdr
+  (lambda (f)
+    (f (lambda (x y) y))))
+```
+
+# 2.5
+
+```scheme
+(define (arith-cons a b)
+  (* (expt 2 a)
+     (expt 3 b)))
+(define (arith-car p)
+  (define (iter ans res)
+    (if (= (remainder res 2) 0)
+        (iter (+ ans 1) (/ res 2))
+        ans))
+  (iter 0 p))
+(define (arith-cdr p)
+  (define (iter ans res)
+    (if (= (remainder res 3) 0)
+        (iter (+ ans 1) (/ res 3))
+        ans))
+  (iter 0 p))
+```
+
+# 2.6
+
+```scheme
+(define one (add-1 zero))
+
+(define two (add-1 (add-1 zero)))
+
+(define one
+  (lambda (f) (lambda (x) (f x))))
+
+(define two
+  (lambda (f) (lambda (x) (f (f x)))))
+```
+
+# 2.7
+
+```scheme
+(define upper-bound
+  (lambda (x)
+    (max (car x)
+         (cdr x))))
+
+(define lower-bound
+  (lambda (x)
+    (min (car x)
+         (cdr x))))
+```
+
+# 2.8
+
+```scheme
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x)
+                    (upper-bound y))
+                 (- (upper-bound x)
+                    (lower-bound y))))
+```
+
+# 2.9
+
+Assume we have two intervals $x, y$, where $x$ is $y$ $(a,b)$ and $(c,d)$, width of those intervals is $\frac{b-a}{2}$ and $\frac{d-c}{2}$.
+
+$x+y=(a+c, b+d)$. Its width is $\frac{b+d-a-c}{2}=\frac{b-a}{2}+\frac{d-c}{2}$.
+
+$x-y=(a-d, b-c)$. Its width is $\frac{b+c-a-d}{2}=\frac{b-a}{2}-\frac{d-c}{2}$.
+
+This pair of intervals let multiplication and devision fail: $(0, 2)$ and $(1,2)$.
+
+# 2.10
+
+```scheme
+(define (div-interval x y)
+  (if (> (* (upper-bound y)
+            (lower-bound y))
+         0)
+      (mul-interval
+       x
+       (make-interval (/ 1.0 (upper-bound y))
+                      (/ 1.0 (lower-bound y))))
+      0))
+```
+
+# 2.11
+
+```scheme
+(define (sign-pair lo up)
+  (cond ((< lo up 0) -1)
+        ((and (> up 0) (< lo 0) 0))
+        (else 1)))
+
+(define (mul-interval x y)
+  (let ((xl (lower-bound x))
+        (xu (upper-bound x))
+        (yl (lower-bound y))
+        (yu (upper-bound y)))
+    (let ((xs (sign-pair xl xu))
+          (ys (sign-pair yl yu)))
+      (cond ((> xs 0)
+             (cond ((> ys 0) (make-interval (* xl yl)
+                                            (* xu yu)))
+                   ((< ys 0) (make-interval (* xu yl)
+                                            (* xl yu)))
+                   ((= ys 0) (make-interval (* xu yl)
+                                            (* xu yu)))))
+            ((< xs 0)
+             (cond ((> ys 0) (make-interval (* xl yu)
+                                            (* xu yl)))
+                   ((< ys 0) (make-interval (* xu yu)
+                                            (* xl yl)))
+                   ((= ys 0) (make-interval (* xl yu)
+                                            (* xl yl)))))
+            ((= xs 0)
+             (cond ((> ys 0) (make-interval (* xl yu)
+                                            (* xu yu))))
+             (cond ((< ys 0) (make-interval (* yu xl)
+                                            (* yl xl))))
+             (cond ((= ys 0) (make-interval (min (* xu yl)
+                                                 (* xl yu))
+                                            (max (* xu yu)
+                                                 (* xl yl))))))))))
+```
+
+# 2.12
+
+```scheme
+(define (make-center-percent c p)
+  (make-interval (- c (* p c)) (+ c (* p c))))
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+(define (percent i)
+  (/ (- (upper-bound i) (lower-bound i)) (+ (lower-bound i) (upper-bound i)) 0.01))
+```
+
+# 2.13
+
+```scheme
+; Suppose there are two intervals, namely a and b,
+; where a = [ca - ta, ca + ta], b = [cb - tb, cb + tb]
+; then a * b = [(ca - ta) * (cb - tb), (ca + ta) * (cb + tb)]
+;            = [ca * cb - ca * tb - ta * cb + ta * tb,
+;               ca * cb + ca * tb + ta * cb + ta * tb]
+; note that in the above equation, ta * tb can be ignored.
+; therefore we have
+; a * b = (ca * cb) * [1 - tb / cb - ta / ca,
+;                      1 + tb / cb + ta / ca]
+;       = (ca * cb) * [1 - pb - pa, 1 + pb + pa]
+;       = (ca * cb) * [1 - (pa + pb), 1 + (pa + pb)]
+
+(define (mul-interval x y)
+  (make-center-percent (* (center x) (center y))
+                       (+ (percent x) (percent y))))
+```
+
+# 2.14
+
+```scheme
+(define (print-interval r)
+  (display "[")
+  (display (lower-bound r))
+  (display ", ")
+  (display (upper-bound r))
+  (display "]")
+  (newline))
+
+(define (test)
+  (let ((r1 (make-interval 1 2))
+        (r2 (make-interval 2 3)))
+    (display "par1: ")
+    (print-interval (par1 r1 r2))
+    (display "par2: ")
+    (print-interval (par2 r1 r2))))
+
+(test)
+; par1: [0.4, 2.0]
+; par2: [0.6666666666666666, 1.2000000000000002]
+```
+
+# 2.15
+
+I'd say no. Because `par2` is better than `par1` in her system but not all system. In the mean while, we need to choose ways of computation depends on several factors, so it's hard to say which way is better in general. At least I don't know.
+
+# 2.16
+
+Because `par1` involve two computation on interval, but `par2` involve only one.
+
+I can't yet.

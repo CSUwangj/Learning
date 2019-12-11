@@ -1,0 +1,57 @@
+#lang sicp
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (make-rat n d)
+  (let ((g (gcd (abs n) (abs d))))
+    (if (< (* n d) 0)
+        (cons (* (- 1) (/ (abs n) g))
+              (/ (abs d) g))
+        (cons (/ (abs n) g) (/ (abs d) g)))))
+
+(make-rat 3 -3)
+
+(define make-point cons)
+(define x-point car)
+(define y-point cdr)
+(define make-segment cons)
+(define start-segment car)
+(define end-segment cdr)
+(define (midpoint-segment line)
+  (make-point (average (x-point (start-segment line)) (x-point (end-segment line)))
+              (average (y-point (start-segment line)) (y-point (end-segment line)))))
+(define zero (make-point 0 0))
+(define end (make-point 2 2))
+(define line (make-segment zero end))
+
+
+(define (make-rec left-x right-x down-y up-y)
+  (cons (cons left-x down-y)
+        (cons right-x up-y)))
+(define (height rec)
+  (- (cdr (cdr rec))
+     (cdr (car rec))))
+(define (width rec)
+  (- (car (cdr rec))
+     (car (car rec))))
+(define (area rec)
+  (* (width rec)
+     (height rec)))
+(define (perimeter rec)
+  (* (+ (height rec)
+        (width rec))
+     2))
+
+(define rec-inst (make-rec 0 2 0 2))
+rec-inst
+(car rec-inst)
+(cdr rec-inst)
+(height rec-inst)
+(width rec-inst)
+(area rec-inst)
+(perimeter rec-inst)
+
+(define make-rec cons)
+(define height car)
+(define width cdr)
