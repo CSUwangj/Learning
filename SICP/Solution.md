@@ -1256,3 +1256,223 @@ I'd say no. Because `par2` is better than `par1` in her system but not all syste
 Because `par1` involve two computation on interval, but `par2` involve only one.
 
 I can't yet.
+
+# 2.17
+
+```scheme
+(define (last-pair list)
+  (if (null? (cdr list))
+      (car list)
+      (last-pair (cdr list))))
+```
+
+# 2.18
+
+```scheme
+(define (reverse items)
+  (define (iter current-item rest-items)
+    (if (null? rest-items)
+        current-item
+        (iter (cons (car rest-items) current-item)
+              (cdr rest-items))))
+  (iter nil items))
+```
+
+# 2.19
+
+```scheme
+(define no-more? null?)
+(define except-first-denomination cdr)
+(define first-denomination car)
+```
+
+# 2.20
+
+```scheme
+(define (same-parity? x y)
+  (= (remainder x 2) (remainder y 2)))
+
+(define (same-parity first . rest)
+  (define (iter rest current)
+    (if (null? rest)
+        current
+        (iter (cdr rest)
+              (if (same-parity? first (car rest))
+                  (append current (list (car rest)))
+                  current))))
+  (cons first (iter rest nil)))
+```s
+
+# 2.21
+
+```scheme
+(define (square a)
+  (* a a))
+
+(define (square-list items)
+  (if (null? items)
+      nil
+      (cons (square (car items))
+            (square-list (cdr items)))))
+
+(define (square-list items)
+  (map square items))
+```
+
+# 2.22
+
+Because every cons can only append last one then it iterate to front.
+
+Because list are `(cons l1 (cons l2 (cons l3 ...(cons nil)...)))`, not `(cons (cons (cons ...(cons l1 nil) l2) l3)...)`
+
+
+# 2.23
+
+```scheme
+(define (for-each proc items)
+  (cond ((null? items) #t)
+      (else
+       (proc (car items))
+       (for-each proc (cdr items)))))
+```
+
+# 2.24
+
+```scheme
+;((1 2) 3 4)
+```
+
+Image again??? NO!
+
+# 2.25
+
+```scheme
+(list 1 3 (list 5 7) 9)
+(car (cdaddr (list 1 3 (list 5 7) 9)))
+; (1 3 (5 7) 9)
+; 7
+(list (list 7))
+(caar (list (list 7)))
+; ((7))
+; 7
+(list 1 (list 2 (list 3 (list 4 (list 5 (list 6 7))))))
+(cadadr (cadadr (cadadr (list 1 (list 2 (list 3 (list 4 (list 5 (list 6 7)))))))))
+; (1 (2 (3 (4 (5 (6 7))))))
+; 7
+```
+
+# 2.26
+
+```scheme
+; (1 2 3 4 5 6)
+; ((1 2 3) 4 5 6)
+; ((1 2 3) (4 5 6))
+```
+
+# 2.27
+
+```scheme
+(define (deep-reverse items)
+  (define (iter current-items rest-items)
+    (if (null? rest-items)
+        current-items
+        (iter (cons (if (list? (car rest-items))
+                        (deep-reverse (car rest-items))
+                        (car rest-items))
+                    current-items)
+              (cdr rest-items))))
+  (iter nil items))
+```
+
+# 2.28
+
+```scheme
+(define (fringe items)
+  (if (null? items)
+      nil
+      (append (if (list? (car items))
+                  (fringe (car items))
+                  (list (car items)))
+              (if (list? (cdr items))
+                  (fringe (cdr items))
+                  (list (cdr items))))))
+```
+
+# 2.29
+
+```scheme
+(define (make-mobile left right)
+  (list left right))
+(define (make-branch length structure)
+  (list length structure))
+
+(define left-branch car)
+(define right-branch cadr)
+(define branch-length car)
+(define branch-structure cadr)
+
+(define mobile? list?)
+(define (total-weight mobile)
+  (let ((left (left-branch mobile))
+        (right (right-branch mobile)))
+    (+ (if (mobile? left)
+           (total-weight left)
+           (branch-structure left))
+       (if (mobile? right)
+           (total-weight right)
+           (branch-structure right)))))
+
+(define (balanced mobile)
+  (let ((left (left-branch mobile))
+        (right (right-branch mobile)))
+    (and (= (* (branch-length left) (total-weight left))
+            (* (branch-length right) (total-weight right)))
+         (if (mobile? left)
+             (balanced left)
+             #t)
+         (if (mobile? right)
+             (balanced right)
+             #t))))
+
+;;; All we need to do is change selector right-branch/branch-structure
+
+(define right-branch cdr)
+(define branch-structure cdr)
+```
+
+# 2.30
+
+```scheme
+(define (square-tree tree)
+  (cond ((null? tree) nil)
+        ((not (pair? tree)) (* tree tree))
+        (else (cons (square-tree (car tree))
+                    (square-tree (cdr tree))))))
+```
+
+# 2.31
+
+```scheme
+(define (tree-map f tree)
+  (cond ((null? tree) nil)
+        ((not (pair? tree)) (f tree))
+        (else (cons (tree-map f (car tree))
+                    (tree-map f (cdr tree))))))
+```
+
+# 2.32
+
+```scheme
+(define (subsets s)
+  (if (null? s)
+      (list nil)
+      (let ((rest (subsets (cdr s))))
+        (append rest
+                (map (lambda (x)
+                       (cons (car s) x))
+                     rest)))))
+```   
+
+Simple DP. 
+
+If $s_1,s_2,...,s_n$ is subsets of $S$, $x$ is an element which is not in $S$. Then, the subsets of $S\cup\{x\}$ is $s_1,s_2,...s_n$ plus $s_1',s_2',...,s_n'$ where $s_k'=s_k\cup\{x\}(1\le k\le n)$.
