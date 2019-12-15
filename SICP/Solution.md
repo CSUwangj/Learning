@@ -1396,6 +1396,12 @@ Image again??? NO!
               (if (list? (cdr items))
                   (fringe (cdr items))
                   (list (cdr items))))))
+;;; a better one:
+(define (fringe items)
+  (cond ((null? items) nil)
+        ((not (list? items)) (list items))
+        (else (append (fringe (car items))
+                      (fringe (cdr items))))))
 ```
 
 # 2.29
@@ -1455,7 +1461,7 @@ Image again??? NO!
 ```scheme
 (define (tree-map f tree)
   (cond ((null? tree) nil)
-        ((not (pair? tree)) (f tree))
+        ((not (list? tree)) (f tree))
         (else (cons (tree-map f (car tree))
                     (tree-map f (cdr tree))))))
 ```
@@ -1476,3 +1482,111 @@ Image again??? NO!
 Simple DP. 
 
 If $s_1,s_2,...,s_n$ is subsets of $S$, $x$ is an element which is not in $S$. Then, the subsets of $S\cup\{x\}$ is $s_1,s_2,...s_n$ plus $s_1',s_2',...,s_n'$ where $s_k'=s_k\cup\{x\}(1\le k\le n)$.
+
+# 2.33
+
+```scheme
+(define (map p sequence)
+  (accumulate (lambda (x y) (cons (p x) y)) nil sequence))
+
+(define (append seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (length sequence)
+  (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
+```
+
+# 2.34
+
+```scheme
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms)
+                (+ this-coeff (* x higher-terms)))
+              0
+              coefficient-sequence))
+```
+
+# 2.35
+
+```scheme
+(define (count-leaves t)
+  (accumulate + 0 (map (lambda (tree)
+                         (if (list? tree)
+                             (count-leaves tree)
+                             1))
+                       t)))
+```
+
+# 2.36
+
+```scheme
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      nil
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+```
+
+# 2.37
+
+```scheme
+(define (transpose mat)
+  (accumulate-n cons nil mat))
+
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (x)
+           (matrix-*-vector cols x))
+         m)))
+```
+
+# 2.38
+
+When operator whee commutative.
+
+# 2.39
+
+```scheme
+(define (reverse sequence)
+  (fold-right (lambda (x y) (append y (list x))) nil sequence))
+
+(define (reverse sequence)
+  (fold-left (lambda (x y) (append (list y) x)) nil sequence))
+```
+
+# 2.40
+
+```scheme
+(define (unique-pairs n)
+  (flatmap
+   (lambda (i)
+     (map (lambda (j) (list i j))
+          (enumerate-interval 1 (- i 1))))
+   (enumerate-interval 1 n)))
+```
+
+# 2.41
+
+```scheme
+(define (unique-triples n)
+  (flatmap
+   (lambda (i)
+     (flatmap (lambda (j)
+            (map (lambda (k) (list i j k))
+                 (enumerate-interval 1 (- j 1))))
+          (enumerate-interval 1 (- i 1))))
+   (enumerate-interval 1 n)))
+
+(define (sum-s-triples s n)
+  (define (ok? triple)
+    (= s (+ (car triple) (cadr triple) (caddr triple))))
+  (filter ok? (unique-triples n)))
+```
+
+# 2.42
+
+I need some time...
+
+# 2.43
+
+I need some time...

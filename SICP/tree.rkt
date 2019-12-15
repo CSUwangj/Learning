@@ -25,14 +25,11 @@
   (iter nil items))
 
 (define (fringe items)
-  (if (null? items)
-      nil
-      (append (if (list? (car items))
-                  (fringe (car items))
-                  (list (car items)))
-              (if (list? (cdr items))
-                  (fringe (cdr items))
-                  (list (cdr items))))))
+  (cond ((null? items) nil)
+        ((not (list? items)) (list items))
+        (else (append (fringe (car items))
+                      (fringe (cdr items))))))
+(fringe (list 1 (list 2 (list 3 4) 5) (list 6 7)))
 
 (define (make-mobile left right)
   (list left right))
@@ -77,7 +74,7 @@
 
 (define (tree-map f tree)
   (cond ((null? tree) nil)
-        ((not (pair? tree)) (f tree))
+        ((not (list? tree)) (f tree))
         (else (cons (tree-map f (car tree))
                     (tree-map f (cdr tree))))))
 
