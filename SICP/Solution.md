@@ -1590,3 +1590,168 @@ I need some time...
 # 2.43
 
 I need some time...
+
+# 2.44
+
+```scheme
+(define (up-split painter n)
+  (if (= n 0)
+      painter
+      (let ((smaller (up-split painter (- n 1))))
+        (below painter (beside smaller smaller)))))
+```
+
+# 2.45
+
+```scheme
+(define (split dir1 dir2)
+  (define (split-n painter n)
+    (if (= n 0)
+        painter
+        (let ((smaller (split-n  painter (- n 1))))
+          (dir1 painter (dir2 smaller smaller)))))
+  (lambda (painter n)
+    (split-n painter n)))
+
+(define r-split (split beside below))
+(define u-split (split below beside))
+```
+
+# 2.46
+
+```scheme
+(define make-vect cons)
+(define xcor-vect car)
+(define ycor-vect cdr)
+(define (add-vect v1 v2)
+  (make-vect (+ (xcor-vect v1) (xcor-vect v2))
+             (+ (ycor-vect v1) (ycor-vect v2))))
+(define (sub-vect v1 v2)
+  (make-vect (- (xcor-vect v1) (xcor-vect v2))
+             (- (ycor-vect v1) (ycor-vect v2))))
+(define (scale-vect s v)
+  (make-vect (* (xcor-vect v) s)
+             (* (ycor-vect v) s)))
+```
+
+# 2.47
+
+```scheme
+(define origin-frame car)
+(define edge1-frame cadr)
+(define edge2-frame caddr)
+
+(define origin-frame car)
+(define edge1-frame cadr)
+(define edge2-frame cddr)
+```
+
+# 2.48
+
+Why does he so love exercises like cons/car/cdr...
+
+```scheme
+(define make-segment cons)
+(define start-segment car)
+(define end-segment cdr)
+```
+
+# 2.49
+
+```scheme
+(define (segment->painter segment-list)
+  (lambda (frame)
+    (for-each
+     (lambda (segment)
+       (draw-line
+        ((frame-coord-map frame)
+         (start-segment segment))
+        ((frame-coord-map frame)
+         (end-segment segment))))
+     segment-list)))
+
+(define (draw-outline frame)
+  ((segments->painter 
+     (list (make-segment (make-vect 0 0)
+                         (make-vect 0 1))
+           (make-segment (make-vect 0 1)
+                         (make-vect 1 1))
+           (make-segment (make-vect 1 1)
+                         (make-vect 1 0))
+           (make-segment (make-vect 1 0)
+                         (make-vect 0 0))))
+   frame))
+
+(define (draw-x frame)
+  ((segments->painter
+     (list (make-segment (make-vect 0 0)
+                         (make-vect 1 1))
+           (make-segment (make-vect 1 0)
+                         (make-vect 0 1))))
+   frame))
+```
+
+WTF is the wave...
+
+# 2.50
+
+```scheme
+(define (flip-horiz painter)
+  (transform-painter painter
+                     (make-vect 1.0 0.0)
+                     (make-vect 0.0 0.0)
+                     (make-vect 1.0 1.0)))
+
+(define (rotate-180 painter)
+  (transform-painter painter
+                     (make-vect 1.0 1.0)
+                     (make-vect 0.0 1.0)
+                     (make-vect 1.0 0.0)))
+
+(define (rotate-270 painter)
+  (transform-painter painter
+                     (make-vect 0.0 1.0)
+                     (make-vect 0.0 0.0)
+                     (make-vect 1.0 1.0)))
+```
+
+# 2.51
+
+```scheme
+(define (below painter1 painter2)
+  (let ((split-point (make-vect 0.0 0.5)))
+    (let ((paint-up
+            (transform-painter painter1
+                               (make-vect 0.0 0.0)
+                               (make-vect 1.0 0.0)
+                               split-point))
+          (paint-down
+            (transform-painter painter2
+                               split-point
+                               (make-vect 1.0 0.5)
+                               (make-vect 0.0 1.0))))
+      (lambda (frame)
+        (paint-up frame)
+        (print-down frame)))))
+
+(define (below painter1 painter2)
+  (rotate-270 (beside (rotate-90 painter1) (rotate-90 painter-2))))
+```
+
+# 2.52
+
+```scheme
+(define (corner-split painter n)
+  (if (= n 0)
+      painter
+      (let ((up (up-split painter (- n 1)))
+            (right (right-split painter (- n 1)))
+            (corner (corner-split painter (- n 1))))
+        (beside (below up painter)
+                (below corner right)))))
+
+(define (square-limit painter n)
+  (let ((combine4 (square-of-four identity flip-horiz
+                                  flip-vert rotate180)))
+    (combine4 (corner-split painter n))))
+```
