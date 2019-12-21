@@ -1885,3 +1885,197 @@ Because `''abracadabra` means (quote (quote (abracadabra))), so her types `(car 
 ```
 
 I need some time to solve subproblem b ...
+
+# 2.59
+
+```scheme
+(define (union-set set1 set2)
+  (cond ((null? set1) set2)
+        ((null? set2) set1)
+        ((element-of-set? (car set1) set2)
+         (union-set (cdr set1) set2))
+        (else (cons (car set1) (union-set (cdr set1) set2)))))
+```
+
+# 2.60
+
+```scheme
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((equal? x (car set)) #t)
+        (else (element-of-set? x (cdr set)))))
+
+(define (adjoin-set x set)
+  (cons x set))
+
+(define (intersection-set set1 set2)
+  (cond ((or (null? set1) (null? set2)) '())
+        ((element-of-set? (car set1) set2)
+         (cons (car set1) (intersection-set (cdr set1) set2)))
+        (else (intersection-set (cdr set1) set2))))
+
+(define (union-set set1 set2)
+  (cond ((null? set1) set2)
+        ((null? set2) set1)
+        (else (cons (car set1) (union-set (cdr set1) set2)))))
+```
+
+| procedure | order of growth |
+|-|-|
+| element-of-set? |$O(n)$ |
+|adjoin-set|$O(1)$|
+|intersection-set|$O(n^2)$|
+|union-set|$O(n)$|
+
+I'd like non-duplicate one, because even order of growth is worse than duplicate one, but size of set will grow far slower than duplicate one.
+
+# 2.61
+
+```scheme
+(define (adjoin-set x set)
+  (cond ((null? set) (cons x '()))
+        ((= x (car set)) set)
+        ((< x (car set)) (cons x set))
+        (else (cons (car set) (adjoin-set x (cdr set))))))
+```
+
+# 2.62
+
+```scheme
+(define (union-set set1 set2)
+  (cond ((null? set1) set2)
+        ((null? set2) set1)
+        (else (let ((x1 (car set1)) (x2 (car set2)))
+                (cond ((= x1 x2)
+                       (cons x1 (union-set (cdr set1) (cdr set2))))
+                      ((< x1 x2)
+                       (cons x1 (union-set (cdr set1) set2)))
+                      ((> x1 x2)
+                       (cons x2 (union-set set1 (cdr set2)))))))))
+```
+
+# 2.63
+
+Same result, as same as in-order travel of binary tree.
+
+Because of append, first one has time complexity $On\log n$, second one has time complexity $O(n)$.
+
+`(1 2 3 4 5 6 7)`
+
+# 2.64
+
+Recursive is so magic.
+
+```
+    5
+   / \
+  3   9
+ /   / \
+1   7   11
+```
+
+Explaining it in induction is easy. First we assume it work well, then we can use it in its procedure body, then we should think about that if it's working well, how should we manipulate entry, left tree and right tree to construct new tree. I can use Python rewrite it as:
+
+```python
+def partial_tree(elts, size):
+	if size == 0:
+		return [], elts
+	left_size = (size - 1) // 2
+	left_tree, rest_of_left_elts = partial_tree(elts, left_size)
+	entry = rest_of_left_elts.pop() # get first element and remove it
+	right_tree, rest_elts = partial_tree(rest_of_left_elts, (size - left_size - 1))
+	return Tree(entry, left_tree, right_tree), rest_elts
+```
+
+Because we only use every element one time, so it has time complexity of $O(n)$, space complexity of $O(n)$.
+
+# 2.65
+
+Because we have tree->list, intersection-set-list, union-set-list, list->tree, which all have complexity of $O(n)$, so we just need to combine them.
+
+I have no interests in assemble them, so :p
+
+# 2.66
+
+```scheme
+define (lookup given-key set-of-records)
+  (if (null? set-of-records)
+      #f
+      (let ((record (entry set-of-records)))
+        (let ((k (key record)))
+          (cond ((= given-key k) (record))
+                ((< given-key k)
+                 (lookup given-key (left-branch set-of-records)))
+                (else
+                 (lookup given-key (right-branch set-of-records))))))))
+```
+
+# 2.67
+
+```scheme
+> (decode sample-message sample-tree)
+(A D A B B C A)
+```
+
+# 2.68
+
+```scheme
+(define (encode message tree)
+  (if (null? message)
+      '()
+      (append (encode-symbol (car message) tree)
+              (encode (cdr message) tree))))
+
+(define (encode-symbol symbol tree)
+  (define (has-symbol? symbol symbol-list)
+    (not (equal? #f (memq symbol symbol-list))))
+  (if (has-symbol? symbol (symbols tree))
+      (let ((left (left-branch tree))
+            (right (right-branch tree)))
+        (if (has-symbol? symbol (symbols left))
+            (if (leaf? left)
+                '(0)
+                (cons 0 (encode-symbol symbol left)))
+            (if (leaf? right)
+                '(1)
+                (cons 1 (encode-symbol symbol right)))))
+      (error "Symbol not in tree")))
+```
+
+# 2.69
+
+```scheme
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+
+(define (successive-merge tree)
+  (if (null? (cdr tree))
+      (car tree)
+      (let ((left (car tree))
+            (right (cadr tree))
+            (rest (cddr tree)))
+        (successive-merge 
+          (adjoin-set (make-code-tree left right) 
+                      rest)))))
+```
+
+# 2.70
+
+```scheme
+(encode '(GET A JOB) sample-tree)
+; (1 1 1 1 1 1 1 0 0 1 1 1 1 0)
+(encode '(SHA NA NA NA NA NA NA NA NA) sample-tree)
+; (1 1 1 0 0 0 0 0 0 0 0 0)
+(encode '(WAH YIP YIP YIP YIP YIP YIP YIP YIP YIP) sample-tree)
+; (1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0)
+(encode '(SHA BOOM) sample-tree)
+; (1 1 1 0 1 1 0 1 1)
+```
+
+84, 108
+
+# 2.80
+
+Drawing again? NO WAY...
+
+1, n-1.
