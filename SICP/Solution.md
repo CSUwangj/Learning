@@ -2074,8 +2074,14 @@ define (lookup given-key set-of-records)
 
 84, 108
 
-# 2.80
+# 2.71
 
 Drawing again? NO WAY...
 
 1, n-1.
+
+# 2.72
+
+Worst case is at situations like 2.71, so this procedure has time complexity of $O(n^2)$.
+
+When every symbol have same frequency, every symbol can be the most frequent symbol, so the worst case happen when encoding right most symbol, so this procedure has time complexity of $O(n\log n)$ **I guess**.
