@@ -23,8 +23,6 @@
       (caddr s)))
 
 (define (deriv exp var)
-  (display exp)
-  (newline)
   (cond ((number? exp) 0)
         ((variable? exp) (if (same-variable? exp var) 1 0))
         ((sum? exp) (make-sum (deriv (addend exp) var)

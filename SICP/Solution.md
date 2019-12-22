@@ -2085,3 +2085,140 @@ Drawing again? NO WAY...
 Worst case is at situations like 2.71, so this procedure has time complexity of $O(n^2)$.
 
 When every symbol have same frequency, every symbol can be the most frequent symbol, so the worst case happen when encoding right most symbol, so this procedure has time complexity of $O(n\log n)$ **I guess**.
+
+# 2.73
+
+a. If expression is a number of variable, just reture derivative according rule, if not, get derivative rule and apply with variable. Because number and variable doesn't have a type tag I guess.
+
+b.
+
+```scheme
+(define (deriv exp var)
+  (cond ((number? exp) 0)
+        ((variable? exp) (if (same-variable? exp var) 1 0))
+        (else ((get 'deriv (operator exp)) (operands exp) 
+                                           var))))
+(define (operator exp) (car exp))
+(define (operands exp) (cdr exp))
+
+(define (install-sum-deriv-package)
+  (define (make-sum a1 . a2)
+    (append (list '+ a1) a2))
+  (define (addend s) (cadr s))
+  (define (augend s)
+    (if (> (length (cddr s)) 1)
+        (append (list '+) (cddr s))
+        (caddr s)))
+  (define (deriv exp var)
+    (make-sum (deriv (addend exp) var)
+              (deriv (augend exp) var)))
+
+  (define (tag x) (attach-tag 'sum x))
+  (put 'make-sum '(sum) make-sum)
+  (put 'addend '(sum) addend)
+  (put 'augend '(sum) augend)
+  (put 'deriv '(sum) deriv)
+  'done)
+
+(define (install-product-deriv-package)
+  (define (make-product a1 . a2)
+    (append (list '* a1) a2))
+  (define (multiplier s) (cadr s))
+  (define (multiplicand s)
+    (if (> (length (cddr s)) 1)
+        (append (list'*) (cddr s))
+        (caddr s)))
+  (define (deriv exp var)
+    (make-sum
+     (make-product (multiplier exp)
+                   (deriv (multiplicand exp) var))
+     (make-product (deriv (multiplier exp) var)
+                   (multiplicand exp))))
+
+  (define (tag x) (attach-tag 'product x))
+  (put 'make-product '(product) make-product)
+  (put 'multiplier '(product) multiplier)
+  (put 'multiplicand '(product) multiplicand)
+  (put 'deriv '(product) deriv)
+  'done)
+```
+
+c.
+
+```scheme
+(define (install-exponentiation-package)
+  (define (make-exponentiation b e)
+    (cond ((=number? e 0) 1)
+          ((=number? e 1) b)
+          ((and (number? b) (number? e)) (expt b e))
+          (else (list '** b e))))
+  (define (base operands) (car operands))
+  (define (exponent operands) (cadr operands))
+  (define (deriv-exponentiation operands var)
+    (make-product
+      (exponent operands)
+      (make-product
+        (make-exponentiation
+          (base operands)
+          (- (exponent exp) 1))
+        (deriv (base exp)))))
+  
+  (define (tag x) (attach-tag 'exponentiation x))
+  (put 'make-exponentiation '(exponentiation) make-product)
+  (put 'base '(exponentiation) multiplier)
+  (put 'exponent '(exponentiation) multiplicand)
+  (put 'deriv '(exponentiation) deriv-exponentiation)
+  'done)
+```
+
+d. I think all deriv put statements needs to be changed into the same indexing.
+
+# 2.74
+
+```scheme
+(define (make-generic-employee-file division employee-file)
+  (cons division employee-file))
+(define (division generic-employee-file)
+  (car generic-employee-file))
+(define (employee-file generic-employee-file)
+  (cdr generic-employee-file))
+
+(define (get-record employee-name generic-employee-file)
+  ((get 'get-record (division generic-employee-file))
+     employee-name
+     (employee-file generic-employee-file)))
+
+(define (get-salary generic-employee-record)
+  ((get 'get-salary (division generic-employee-record))
+     (employee-record generic-employee-record)))
+
+(define (find-employee-record employee-name generic-files)
+  (if (null? generic-files)
+      (error "Record not found")
+      (let ((record (get-record employee-name (car generic-files))))
+        (if (record)
+            record
+            (find-employee-record employee-name (cdr generic-files))))))
+```
+
+Every division must write their own getter for their data.
+
+# 2.75
+
+```scheme
+(define (make-from-mag-ang r a)
+  (define (dispath op)
+    (cond ((eq? op 'magnitude) r)
+          ((eq? op 'angle) a)
+          ((eq? op 'real-part)
+           (* r (cos a)))
+          ((eq? op 'imag-part)
+           (* r (sin a)))
+          (else
+            (error "Unknown op -- MAKE-FROM-MAG-ANG" op))))
+  dispath)
+```
+
+# 2.76
+
+I need more thinking to construct my idea.
