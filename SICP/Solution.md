@@ -2221,4 +2221,97 @@ Every division must write their own getter for their data.
 
 # 2.76
 
-I need more thinking to construct my idea.
+|name|add new type|add new operation|
+|-|-|-|
+|generic operations with explicit dispatch|add new branch of new type for all procedures|create operation containe dispatch of all the types|
+|data-directed programming|registry new type in table|define operation in each type and add a generic operation|
+|message-passing programming|just implement new type|add operation for each type|
+
+If we need to frequently add new type, we should use data-directed programming or message-passing programming.
+
+If we need to frequently add new operation, we should use generic operations with dispatch or data-directed programming.
+
+Because data-directed use more of modularity, so I prefer it.
+
+# 2.77
+
+```scheme
+;; (magnitude z)
+;; (magnitude (make-complex-from-real-imag 3 4))
+;; (magnitude ((get 'make-from-real-imag 'complex) 3 4))
+;; (magnitude (tag (make-from-real-imag 3 4)))
+;; (magnitude (attach-tag 'complex (make-from-real-imag 3 4)))
+;; (magnitude (attach-tag 'complex (get 'make-from-real-imag 'rectangular) 3 4))
+;; (magnitude (attach-tag 'complex (tag (make-from-real-imag 3 4))))
+;; (magnitude (attach-tag 'complex (attach-tag 'rectangular (cons 3 4))))
+;; (magnitude (cons 'complex (cons 'rectangular (cons 3 4))))
+;; (magnitude '(complex rectangular 3 4))
+;; (apply-generic 'magnitude '(complex rectangular 3 4))
+;; (magnitude '(rectangular 3 4))
+;; (apply-generic 'magnitude '(rectangular 3 4))
+;; (magnitude '(3 4))
+;; 5
+
+;; `apply-generic' is invoked 2 times
+```
+
+# 2.78
+
+```scheme
+(define (attach-tag type-tag contents)
+  (if (number? contents)
+      contents
+      (cons type-tag contents))
+
+(define (type-tag datum)
+  (cond ((pair? datum) (car datum))
+        ((number? datum) datum)
+        (else (error "Bad tagged datum -- TYPE-TAG" datum))))
+
+(define (contents datum)
+  (cond ((pair? datum) (cdr datum))
+        ((number? datum) datum)
+        (else (error "Bad tagged datum -- CONTENTS" datum))))
+```
+
+# 2.79
+
+```scheme
+(define (equ? x y)
+  (apply-generic 'equ? x y))
+
+(put 'equ? '(scheme-number scheme-number) =)
+
+(put 'equ? '(rational rational)
+     (lambda (x y) 
+       (= (* (numer x)
+             (denom y))
+          (* (denom x)
+             (number y)))))
+
+(put 'equ? '(complex complex)
+     (lambda (x y)
+       (and (= (real-part x)
+               (real-part y))
+            (= (imag-part x)
+               (imag-part y)))))
+```
+
+# 2.81
+
+```scheme
+(define (=zero? v) 
+  (apply-generic '=zero? v))
+
+(put '=zero? (scheme-number) 
+     (lambda (v)
+       (= v 0)))
+
+(put '=zero? (rational)
+     (lambda (v)
+       (= 0 (numer v))))
+
+(put '=zero? (rational)
+     (lambda (v)
+       (= 0 (magnitude v))))
+```
