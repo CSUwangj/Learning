@@ -32,3 +32,5 @@ P15：
   - 描述语句集中了
   - 信息语句集中
   - 字体有所区分
+  
+后面的题解放在[daily challenge](https://csuwangj.github.io/ZDaily/)中了，时间为2020-09-21~2020-10-18。
