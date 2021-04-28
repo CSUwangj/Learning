@@ -1,10 +1,10 @@
 # PowerShell实战指南（第3版）
 
-# Chpater 2
+## Chpater 2
 
 wow, tab-completion can complete commands/program/path, also args key and value! Also variables!
 
-# Chpater 3
+## Chpater 3
 
 wildcard\(\*\) is ok for powershell `Help`
 
@@ -43,7 +43,7 @@ use `Help about_Common` will list common parameters, there are
 15.  don't know...
 16.  `help array`
 
-### tutorial
+### answer
 
 1. yes
 2. `help html` or `get-command -noun html`
@@ -61,3 +61,22 @@ use `Help about_Common` will list common parameters, there are
 14. `A parameter cannot be found that matches parameter name 'c'.`
 15. `get-command -noun object`
 16. yes
+
+## Chpater 4
+
+alias won't include any predifined parameters.
+
+use `Show-Command` to get help with gui
+
+use `--%` after external command name tell powershell not parse command but send to CMD.exe directly.(seems fixed at powershell7)
+
+### hands on
+
+1. `Get-Process`
+2. can not find it
+3. `get-command -CommandType Cmdlet`
+4. `Get-Alias`
+5. `New-Alias -Name "np" notepad`
+6. `Get-Service -Name "M*"`
+7. `Show-NetFirewallRule`
+8. can not find it
