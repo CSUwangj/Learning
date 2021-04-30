@@ -109,3 +109,37 @@ use `--%` after external command name tell powershell not parse command but send
       - (not mentioned in my help manual, maybe it's outdated?)
       - \[yes, it's outdated\]
    2. yes, and `The FileSystem (../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md)provider is the only installed PowerShell provider that supports filters. Filters are more efficient than other parameters.` so it's not for all PSProviders.
+
+## Chapter 6
+
+### hands on
+
+1. see below
+
+``` powershell
+PS C:\Users\X> cat tt
+test
+PS C:\Users\X> cat t
+Test
+PS C:\Users\X> diff -ReferenceObject (Get-Content .\t) -DifferenceObject (Get-Content .\tt)
+PS C:\Users\X> 
+```
+
+``` powershell
+PS C:\Users\X> echo testt > tt
+PS C:\Users\X> cat .\tt
+testt
+PS C:\Users\X> diff -ReferenceObject (Get-Content .\t) -DifferenceObject (Get-Content .\tt)
+
+InputObject SideIndicator
+----------- -------------
+testt       =>
+Test        <=
+```
+
+2. `Out-File : Cannot process argument because the value of argument "path" is null. Change the value of argument "path" to a non-null value.`
+3. `-Name`
+4. `-Delimiter "|"` 
+5. export and import with `-NoTypeInformation`?
+6. `-NoClobber`, `-Confirm`
+7. `-UseCulture`
