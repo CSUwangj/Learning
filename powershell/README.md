@@ -143,3 +143,81 @@ Test        <=
 5. export and import with `-NoTypeInformation`?
 6. `-NoClobber`, `-Confirm`
 7. `-UseCulture`
+
+## Review hands on
+
+### Chapter 1~6
+
+1. can not found suitable command
+2. see below:
+``` powershell
+Get-Process | Sort-Object VM -Descending | Select-Object -First 5 | Format-Table `
+        @{Label = "NPM(K)"; Expression = {[int]($_.NPM / 1024)}},
+        @{Label = "PM(K)"; Expression = {[int]($_.PM / 1024)}},
+        @{Label = "WS(K)"; Expression = {[int]($_.WS / 1024)}},
+        @{Label = "VM(M)"; Expression = {[int]($_.VM / 1MB)}},
+        @{Label = "CPU(s)"; Expression = {if ($_.CPU) {$_.CPU.ToString("N")}}},
+        Id, MachineName, ProcessName -AutoSize`
+
+NPM(K)  PM(K)  WS(K)   VM(M) CPU(s)    Id MachineName ProcessName
+------  -----  -----   ----- ------    -- ----------- -----------
+    18  58880  60744 2218466 132.08 23916 .           chrome
+    22  83956  64684 2212316 40.73  22924 .           chrome
+    38 166496 127552 2208309 167.02 16892 .           chrome
+    35 120560 120940 2204229 72.20   2960 .           chrome
+    22 116656 155276 2204226 11.06  19556 .           chrome
+```
+
+3. `Get-Service | Select-Object Name,Status | Sort-Object Status -Descending | Export-Csv test.csv`
+4. `Set-Service -Name BITS -StartupType Automatic`
+5. `Get-ChildItem -Path C:\* -Recurse -Include Win*.*`
+6. `dir -Attributes D c:\ > c:\dir.txt`
+7. same as 1
+8. `Get-Service | Export-Csv C:\services.csv`
+9. `Get-Service | select Name,DisplayName,StartType | ConvertTo-Html -PreContent "<h1>Installed Services</h1>" > services.html`
+10. see below
+
+``` powershell
+New-Alias -Name tt -Value Get-ChildItem
+
+Export-Alias t -Name tt
+Import-Alias .\t
+```
+
+11. same as 1
+12. `pwd` or `Get-Location`
+13. `Get-History`, then don't know
+14. same as 1
+15. `New-Item -ItemType Directory C:\Review`
+16. `Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders\'`
+17. :
+    1.  `Restart-Computer`
+    2.  `Stop-Computer`
+    3.  `Remove-LocalGroupMember` I guess
+    4.  can not found
+18. `Set-ItemProperty`
+
+### answer for 1~6
+
+1. yeah, `Get-EventLog` again
+2. yes
+3. yes
+4. yes
+5. yes
+6. yes'yes
+7. same as 1
+8. same as 1
+9. yes
+10. yes, BTW it's not xml in powershell7
+11. `Get-HotFix -Description "Update","Hotfix"`
+12. yes
+13. `Get-History -id x | Invoke-History`
+14. same as 1
+15. yes
+16. yes
+17. :
+    1.  yes
+    2.  yes
+    3.  removed
+    4.  removed
+18. yes
