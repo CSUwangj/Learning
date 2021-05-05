@@ -26,7 +26,7 @@ use `Help about_Common` will list common parameters, there are
 
 ### hands on
 
-1. `Update-Help -UICulture en-US `
+1. `Update-Help -UICulture en-US`
 2. `help convert` then found `ConvertTo-Html`, manual written `You can use this cmdlet to display the output of a command in a Web page.`
 3. `help redirect` found `Out-File`, `help printer` found `Out-Printer`
 4. operating process can be done with `Debug-Process`, `Start-process`, `Stop-Process`, `Wait-Process`
@@ -144,6 +144,126 @@ Test        <=
 6. `-NoClobber`, `-Confirm`
 7. `-UseCulture`
 
+## Chapter 7
+
+powershell has almost the same functionality as MMC(doubt if it's true for powershell7)
+
+there is only one powershell, but several shortcuts of powershell with different import-module.
+
+there used to be particular shell for `SQL Server` called `mini-shell`, but removed since `SQL Server 2012`
+
+there used to be PSSnapin for module, but it was removed in powershell core.
+
+Damn! I found `Get-EventLog` in my windows powershell...
+
+auto completion/hint can be done without import module, wow
+
+### hands on
+
+I have no idea what to do... google and found `Test-NetConnection` but not expected answer
+
+### answer
+
+``` powershell
+❯ Get-Module *trouble* -list
+
+
+    Directory: C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+
+ModuleType Version    Name                                ExportedCommands
+---------- -------    ----                                ----------------
+Manifest   1.0.0.0    TroubleshootingPack                 {Get-TroubleshootingPack, Invoke-TroubleshootingPack}
+
+
+❯ Import-Module TroubleshootingPack
+ Thinker-Z@Thinker-Z  ~ 
+❯ Get-Command -Module TroubleshootingPack
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Cmdlet          Get-TroubleshootingPack                            1.0.0.0    TroubleshootingPack
+Cmdlet          Invoke-TroubleshootingPack                         1.0.0.0    TroubleshootingPack
+
+
+ Thinker-Z@Thinker-Z  ~  
+❯ $pack=Get-TroubleshootingPack
+
+cmdlet Get-TroubleshootingPack at command pipeline position 1
+Supply values for the following parameters:
+Path: C:\windows\diagnostics\system\networking
+ Thinker-Z@Thinker-Z  ~ 
+❯ Invoke-TroubleshootingPack $pack
+Starting network diagnostics...  -1
+
+Instance ID
+Not to be specified outside of MSDT application.
+:
+
+
+Select entry point
+Please select the entry point for Network Diagnostics.
+
+[1] Web Connectivity
+[2] File Sharing
+[3] Network Adapter
+[4] Winsock Connectivity
+[5] Grouping
+[6] Inbound
+[7] DirectAccess
+[8] DefaultConnectivity
+[9] Reserved
+
+[?] Help
+[x] Exit
+:1
+
+
+Please select the issue Windows should troubleshoot
+
+[1] Troubleshoot my connection to the Internet
+[2] Help me connect to a specific web page
+
+[?] Help
+[x] Exit
+:2
+
+Enter the address of the website you want to access
+For example, http://www.microsoft.com.
+:http://www.pluralsight.com/browse/it-ops
+Looking for problems...  -1
+正在查看 Web 连接 中的问题...  -1
+Collecting results...  -1
+   -1
+Collecting configuration details...  -1
+   -1
+
+No problems were detected
+```
+
+## Chapter 8
+
+### hands on
+
+1. `Get-Random`
+2. `Get-Date`
+3. `System.DateTime`
+4. `Get-Date | select DayOfWeek`
+5. `Get-HotFix`
+6. `Get-HotFix | sort InstalledOn | select InstalledOn, HotFixID, InstalledBy`, wondering why InstallDate is empty
+7. `Get-HotFix | sort Description | select Description, HotFixID, InstalledBy | ConvertTo-Html | Out-File hotfix.Html`
+8. `Get-EventLog -LogName Security -Newest 50 | sort TimeGenerated, Index | select Index, TimeGenerated, Source | Out-File eventlog.txt`
+
+### answer
+
+1. yes
+2. yes
+3. yes
+4. yes
+5. yes
+6. yes
+7. yes
+8. yes
+
 ## Review hands on
 
 ### Chapter 1~6
@@ -208,7 +328,7 @@ Import-Alias .\t
 7. same as 1
 8. same as 1
 9. yes
-10. yes, BTW it's not xml in powershell7
+10. yes, BTW it's not XML in powershell7 nor in my windows powershell, it's CSV
 11. `Get-HotFix -Description "Update","Hotfix"`
 12. yes
 13. `Get-History -id x | Invoke-History`
