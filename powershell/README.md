@@ -242,6 +242,10 @@ No problems were detected
 
 ## Chapter 8
 
+powershell has Extended Type System that's capable of adding more useful properties on objects, but for us now these extended properties act as normal property.
+
+use method is more about .NET programming.
+
 ### hands on
 
 1. `Get-Random`
@@ -263,6 +267,34 @@ No problems were detected
 6. yes
 7. yes
 8. yes
+
+## Chapter 9
+
+pipeline `ByValue` and `ByPropertyName`, can check help for details.
+
+use `(cmd)` in powershell act as `` `cmd` `` in linux
+
+use `-ExpandProperty` to "unbox" properties
+
+### assignment
+
+1. yes, use `-expand` get `System.String`
+2. no, because `Get-HotFix` need `ComputerName`
+3. yes, pipeline by property name
+4. `Get-ADComputer -Filter * | Select-Object @{l='ComputerName';e={$_.Name}} | Get-Process`
+5. `Get-Service -ComputerName (Get-ADComputer -Filter * | Select-Object -Expand Name)`
+6. no, found `Get-WmiObject` has no parameters accept pipeline input.
+
+### answer
+
+1. yes
+2. yes
+3. yes
+4. yes
+5. yes
+6. yes
+
+### answer
 
 ## Review hands on
 
