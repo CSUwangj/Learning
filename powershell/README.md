@@ -281,7 +281,7 @@ use `-ExpandProperty` to "unbox" properties
 1. yes, use `-expand` get `System.String`
 2. no, because `Get-HotFix` need `ComputerName`
 3. yes, pipeline by property name
-4. `Get-ADComputer -Filter * | Select-Object @{l='ComputerName';e={$_.Name}} | Get-Process`
+4. `Get-ADComputer -Filter * | Select-Object @{label='ComputerName';expression={$_.Name}} | Get-Process`
 5. `Get-Service -ComputerName (Get-ADComputer -Filter * | Select-Object -Expand Name)`
 6. no, found `Get-WmiObject` has no parameters accept pipeline input.
 
@@ -294,7 +294,32 @@ use `-ExpandProperty` to "unbox" properties
 5. yes
 6. yes
 
+## Chapter 10
+
+### hands on
+
+1. `Get-Process | select Name,Id,Responding | ft -AutoSize`
+2. see below
+
+``` powershell
+Get-Process  | Format-Table -AutoSize Id, ProcessName,
+      @{Label = "PM(M)"; Expression = {[int]($_.PM / 1MB)}},
+      @{Label = "VM(M)"; Expression = {[int]($_.VM / 1MB)}}
+```
+
+3. WTF is usable?
+4. `Get-Service | sort Status -Descending | ft -GroupBy Status`
+5. `dir c:\ -Directory | fw name -col 4`
+6. `dir C:\Windows\ -File | where Extension -eq .exe | fl -AutoSize Name, VersionInfo, @{l='size'; e={$_.Length}}`, but one line is too small for it
+
 ### answer
+
+1. `Get-Process | select Name,Id,Responding | ft -AutoSize -Wrap`
+2. yes
+3. shit... I used it but not recognize it. `Get-EventLog -List | ft @{l='LogName';e={$_.LogDisplayName}},@{l='RetDays';e={$_.MinimumRetentionDays}} -AutoSize`
+4. yes
+5. yes
+6. yes
 
 ## Review hands on
 
