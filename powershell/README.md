@@ -321,6 +321,46 @@ Get-Process  | Format-Table -AutoSize Id, ProcessName,
 5. yes
 6. yes
 
+## Chapter 11
+
+### hands on
+
+1. `Get-NetAdapter`
+2. `Get-DnsClientCache -Type A,AAAA`
+3. `dir C:\Windows\System32\ -File *.exe | where Length -gt 5MB` for short or ` Get-ChildItem -Path C:\Windows\System32\ -Filter *.exe -File | Where-Object { $_.Length -GT 5MB}`
+4. `Get-HotFix -Description "*security*"`
+5. no
+6. `Get-HotFix -Description Update | where InstalledBy -eq "NT AUTHORITY\SYSTEM"` 
+7. `Get-Process -Name svchost, conhost`
+
+### answer
+
+1. `Get-NetAdapter -Physical`
+2. Yes
+3. Yes
+4. Yes
+5. Yes
+6. yes
+
+## Chapter 12
+
+### hands on
+
+1. mkdir LABS
+2. New-SmbShare -CachingMode Documents -Path C:\Users\test\LABS\ -name LABS -FullAccess Administrators -ChangeAccess Everyone
+3. Get-SmbShareAccess LABS
+
+### answer
+
+1. Yes
+2. Yes
+3. Yes
+
+## Chapter 13
+
+fail to set up environment, domain/trustedhost/balabala is so annoying, maybe bash is more suitable for me.
+
+
 ## Review hands on
 
 ### Chapter 1~6
